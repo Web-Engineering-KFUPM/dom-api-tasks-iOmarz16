@@ -1,96 +1,131 @@
 /*
 =======================================
-📘 JavaScript & Web APIs Lab
+📘 JavaScript & Web APIs Lab — SOLUTION
 All tasks in one file (script.js)
 =======================================
 */
 
-/*  
-=======================================
-TODO1: Welcome Board
----------------------------------------
-When the page loads, display a welcome message 
-inside the <p> element with id="t1-msg".
+// Small helper
+const $ = (id) => document.getElementById(id);
 
-✅ Task:
-- Select the element with id "t1-msg".
-- Change its text to "Hello, World!".
+document.addEventListener("DOMContentLoaded", () => {
+  /*
+  =======================================
+  TODO1: Welcome Board
+  ---------------------------------------
+  When the page loads, display a welcome message 
+  inside the <p> element with id="t1-msg".
+  */
+  const t1Msg = $("t1-msg");
+  if (t1Msg) t1Msg.textContent = "Hello, World!";
 
-💡 Hint:
-document.getElementById("t1-msg").innerHTML = "Hello, World!";
-*/
- 
+  /*
+  =======================================
+  TODO2: Interaction Corner
+  ---------------------------------------
+  Button id="t2-btn" updates <p id="t2-status">
+  */
+  const t2Btn = $("t2-btn");
+  const t2Status = $("t2-status");
+  if (t2Btn && t2Status) {
+    t2Btn.addEventListener("click", () => {
+      t2Status.textContent = "You clicked the button!";
+    });
+  }
 
-/*  
-=======================================
-TODO2: Interaction Corner
----------------------------------------
-There is a button with id="t2-btn".
-When the button is clicked, change the text inside 
-the <p> with id="t2-status" to:
-    "You clicked the button!"
+  /*
+  =======================================
+  TODO3: Inspiring Quote Board
+  ---------------------------------------
+  Fetch a random quote and show text & author.
+  API: https://dummyjson.com/quotes/random
+  (Sometimes examples show `content`; dummyjson uses `quote`.
+  We'll support both to be safe.)
+  */
+  const t3Btn = $("t3-loadQuote");
+  const t3Quote = $("t3-quote");
+  const t3Author = $("t3-author");
 
-✅ Task:
-- Get the button element.
-- Add a click event listener.
-- Inside the event, change the text of the status paragraph.
+  if (t3Btn && t3Quote && t3Author) {
+    t3Btn.addEventListener("click", async () => {
+      t3Btn.disabled = true;
+      t3Btn.textContent = "Loading…";
+      t3Quote.textContent = "";
+      t3Author.textContent = "";
 
-💡 Hint:
-button.addEventListener("click", function () {
-    // change text here
+      try {
+        const res = await fetch("https://dummyjson.com/quotes/random");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        // Support both shapes:
+        // { content, author }  OR  { quote, author }
+        const quoteText = data.content ?? data.quote ?? "No quote text found.";
+        const authorText = data.author ?? "Unknown";
+
+        t3Quote.textContent = quoteText;
+        t3Author.textContent = `— ${authorText}`;
+      } catch (err) {
+        t3Quote.textContent = "Failed to load quote. Please try again.";
+        t3Author.textContent = "";
+        console.error("Quote fetch error:", err);
+      } finally {
+        t3Btn.disabled = false;
+        t3Btn.textContent = "Load Quote";
+      }
+    });
+  }
+
+  /*
+  =======================================
+  TODO4: Dammam Weather Now
+  ---------------------------------------
+  Fetch current weather via OpenWeatherMap.
+  Replace YOUR_API_KEY below.
+  */
+  const t4Btn = $("t4-loadWx");
+  const t4Temp = $("t4-temp");
+  const t4Hum = $("t4-hum");
+  const t4Wind = $("t4-wind");
+
+  if (t4Btn && t4Temp && t4Hum && t4Wind) {
+    t4Btn.addEventListener("click", async () => {
+        const API_KEY ="290ead170e7e4b029a176f486df1080d";
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=Dammam,SA&appid=${API_KEY}&units=metric`;
+
+      t4Btn.disabled = true;
+      const originalLabel = t4Btn.textContent;
+      t4Btn.textContent = "Loading…";
+
+      // Clear previous
+      t4Temp.textContent = "";
+      t4Hum.textContent = "";
+      t4Wind.textContent = "";
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          // Common cause is invalid API key (401)
+          throw new Error(`HTTP ${res.status} — check API key & URL`);
+        }
+        const data = await res.json();
+
+        const temp = data?.main?.temp;
+        const hum = data?.main?.humidity;
+        const wind = data?.wind?.speed;
+
+        t4Temp.textContent = (temp ?? "—") + (temp != null ? " °C" : "");
+        t4Hum.textContent = (hum ?? "—") + (hum != null ? " %" : "");
+        t4Wind.textContent = (wind ?? "—") + (wind != null ? " m/s" : "");
+      } catch (err) {
+        t4Temp.textContent = "Error";
+        t4Hum.textContent = "Error";
+        t4Wind.textContent = "Error";
+        console.error("Weather fetch error:", err);
+      } finally {
+        t4Btn.disabled = false;
+        t4Btn.textContent = originalLabel;
+      }
+    });
+  }
 });
-*/
- 
-
-/*  
-=======================================
-TODO3: Inspiring Quote Board
----------------------------------------
-Use the Quotable API to display a random quote.
-
-🌍 API Link:
-https://dummyjson.com/quotes/random
-
-✅ Task:
-- When the button with id="t3-loadQuote" is clicked:
-    - Fetch a random quote from the API.
-    - Display the quote text inside the <p> with id="t3-quote".
-    - Display the author inside the <p> with id="t3-author".
-
-💡 Hint:
-The API returns JSON like:
-{
-  "content": "Do not watch the clock. Do what it does. Keep going.",
-  "author": "Sam Levenson"
-}
-
-Use:
-data.content   // the quote text
-data.author    // the author
-*/
- 
-
-/*  
-=======================================
-TODO4: Dammam Weather Now
----------------------------------------
-Use the OpenWeatherMap API to display live weather data.
-
-🌍 API Link:
-https://api.openweathermap.org/data/2.5/weather?q=Dammam&appid=API_KEY=metric
-
-⚠️ Replace YOUR_API_KEY with your actual API key from:
-https://openweathermap.org/api
-
-✅ Task:
-- When the button with id="t4-loadWx" is clicked:
-    - Fetch current weather data for Dammam.
-    - Show temperature in the element with id="t4-temp".
-    - Show humidity in the element with id="t4-hum".
-    - Show wind speed in the element with id="t4-wind".
-
-💡 Hint:
-data.main.temp      → temperature (°C)
-data.main.humidity  → humidity (%)
-data.wind.speed     → wind speed (m/s)
-*/
